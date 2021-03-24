@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello IndexController!{% endblock %}
+
+
+{% block body %}
+
+<div class="container">
+<h1>Tous les utilisateurs</h1>
+
+{# <form action="{{ path('ping') }}" method="post">
+    <button type="submit" class="btn btn-primary">Ping !</button>
+</form> #}
+
+
+    <ul class="list-group">
+        {% for user in users %}
+            <li class="list-group-item {{ app.user == user ? 'active': ''}}">
+                <span>{{ user.username }} - {{ user.id }}</span>
+                {% if app.user != user %}
+                <p>
+                    <form action="{{ path('ping', {user: user.id}) }}" method="post">
+                        <button type="submit" class="btn btn-primary">Ping !</button>
+                    </form>
+                </p>
+                {% endif %}
+            </li>
+            <hr>
+        {% endfor %}
+    </ul>
+</div>
+
+{% block javascript %}
+
+    <script>
+        const url = new URL('http://localhost:1337/.well-known/mercure');
+        url.searchParams.append('topic', 'http://monsite.com/ping/' + {{ app.user.id }});
+
+        const eventSource = new EventSource(url);
+
+        // The callback will be called every time an update is published
+        eventSource.onmessage = e => {
+            console.log(e);
+            document.querySelector('h1').insertAdjacentHTML('afterend', "<div class='alert alert-info'>Ping !</div>")
+            window.setTimeout(() => {
+                const $alert = document.querySelector('.alert')
+                $alert.parentNode.removeChild($alert)
+            }, 2000)
+        } // do something with the payload
+    
+    </script>
+{% endblock %}
+
+
+
+{% endblock %}
